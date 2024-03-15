@@ -1,0 +1,70 @@
+.gameGrid {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.gameRow {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.scene {
+    width: 5rem;
+    aspect-ratio: 1;
+    perspective: 20rem;
+}
+
+.card {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s;
+    transform-style: preserve-3d;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    &.flipped {
+        transform: rotateY(180deg);
+    }
+}
+
+.cardImage {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background-size: cover;
+    padding: .5rem;
+}
+
+
+.cardFace {
+    position: absolute;
+    border-radius: 1rem;
+    width: 100%;
+    height: 100%;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    font-size: 40px;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    &.front {
+        background-color: #101010;
+    }
+    &.matched {
+        animation: popout 0.5s 0.5s ease-in-out;
+    }
+    
+    &.back {
+        background-color: #404040;
+        transform: rotateY(180deg);
+    }
+}
+
+
+@keyframes popout {
+    70% {
+        scale: 1.05;
+    }
+}

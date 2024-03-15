@@ -1,0 +1,75 @@
+@import url("https://fonts.googleapis.com/css?family=Nunito%20Sans:700|Noto%20Sans%20Palmyrene:400");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root[data-theme="light"] {
+    --text: #003049;
+    --background: #fcf8fc;
+    --primary: #7209b7;
+    --secondary: #d9226b;
+    --accent: #4361ee;
+}
+:root[data-theme="dark"] {
+    --text: #b8e6ff;
+    --background: #070307;
+    --primary: #b046f6;
+    --secondary: #dd2770;
+    --accent: #1130bb;
+}
+
+:root {
+    line-height: 1.5;
+
+    color: var(--text);
+    background-color: var(--background);
+
+    font-synthesis: style;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: "Noto Sans Palmyrene";
+    font-weight: 400;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+    font-family: "Nunito Sans";
+    font-weight: 700;
+}
+
+html {
+    font-size: 100%;
+} /* 16px */
+
+h1 {
+    font-size: 4.21rem; /* 67.36px */
+}
+
+h2 {
+    font-size: 3.158rem; /* 50.56px */
+}
+
+h3 {
+    font-size: 2.369rem; /* 37.92px */
+}
+
+h4 {
+    font-size: 1.777rem; /* 28.48px */
+}
+
+h5 {
+    font-size: 1.333rem; /* 21.28px */
+}
+
+small {
+    font-size: 0.75rem; /* 12px */
+}
