@@ -1,3 +1,14 @@
+.wrapper {
+    padding: 2rem;
+    border: 1px solid white;
+    border-radius: 1rem;
+    width: fit-content;
+    background-color: var(--background);
+    background-image: var(--background-image);
+    background-size: cover;
+    background-position: center;
+}
+
 .gameGrid {
     display: grid;
     gap: 0.5rem;
@@ -9,10 +20,20 @@
     justify-content: center;
 }
 
+.button {
+    padding: 0.5rem 1rem;
+    /* border: 1px solid var(--text); */
+    border-radius: 1rem;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background-color: var(--accent);
+}
+
 .scene {
     width: 5rem;
     aspect-ratio: 1;
-    perspective: 20rem;
+    perspective: 10rem;
 }
 
 .card {
@@ -21,7 +42,7 @@
     transition: transform 0.5s;
     transform-style: preserve-3d;
     cursor: pointer;
-    position: relative;
+    position: relative;     
     user-select: none;
     &.flipped {
         transform: rotateY(180deg);
@@ -34,37 +55,71 @@
     height: 100%;
     object-fit: contain;
     background-size: cover;
-    padding: .5rem;
+    padding: 0.5rem;
 }
-
 
 .cardFace {
     position: absolute;
     border-radius: 1rem;
     width: 100%;
     height: 100%;
+    border: 3px solid var(--text);
+
     color: white;
     text-align: center;
     font-weight: bold;
-    font-size: 40px;
+    /* font-size: 40px; */
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    /* opacity: .5; */
+    /* backdrop-filter: blur(2rem);
+            -webkit-backdrop-filter: blur(2rem); */
     &.front {
-        background-color: #101010;
+        overflow: hidden;
+        
+        background-color: var(--secondary);
     }
     &.matched {
-        animation: popout 0.5s 0.5s ease-in-out;
+        animation: popout 0.5s 0.5s ease-in-out 1;
     }
-    
+
+    &.popout {
+        animation: rotate 0.5s 0.5s ease-in-out;
+        /* transition: scale 0.5s ease-in-out;
+        scale: 1.05; */
+    }
+
     &.back {
-        background-color: #404040;
         transform: rotateY(180deg);
+        overflow: hidden;
+  
+        &::before {
+            content: "";
+            position: absolute;
+            background-color: var(--primary);
+            inset: 0;
+            /* backdrop-filter: blur(2rem);
+            -webkit-backdrop-filter: blur(2rem); */
+            /* opacity: 0.4; */
+            z-index: -1;
+        }
     }
 }
 
-
 @keyframes popout {
     70% {
-        scale: 1.05;
+        scale: 1.07;
+    }
+}
+
+@keyframes rotate {
+    /* from {
+        rotate: 0deg;
+    } */
+    70% {
+        scale: 1.07;
+    }
+    to {
+        rotate: 360deg;
     }
 }

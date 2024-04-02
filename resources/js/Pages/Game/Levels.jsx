@@ -1,96 +1,234 @@
 import { useEffect, useState } from "react";
-import Game from "./Game";
-import { Flag } from "@phosphor-icons/react";
+import Game, { randomArray } from "./Game";
+import css from "./game.module.css";
+import GameInbetween from "./GameInbetween";
+import Authenticated from "@/Layouts/AuthenticatedLayout";
+import { Head, Link } from "@inertiajs/react";
+import PrimaryButton from "@/Components/PrimaryButton";
+import SecondaryButton from "@/Components/SecondaryButton";
+import { router } from "@inertiajs/react";
+import { Popup } from "@/Components/Popup";
+import { Pause } from "@phosphor-icons/react";
 
-const Levels = () => {
-    const timerStart = 30;
+const Stats = ({ level, score, coins }) => (
+    <div className={`flex flex-col gap-2 align-center`}>
+        <p>Level: {level}</p>
+        <p>Score: {score}</p>
+        <p>Coins earned: {coins}</p>
+    </div>
+);
+
+const Levels = ({ auth }) => {
+    const initialTimer = 100;
     const [level, setLevel] = useState(0);
-    const [popuSeen, setPopupSeen] = useState(false);
-    const [lost, setLost] = useState(false);
-    const [seconds, setSeconds] = useState(timerStart);
-    const [isActive, setIsActive] = useState(false);
+    const [isGamePaused, setIsGamePaused] = useState(false);
+    const [timeRemaining, setTimeRemaining] = useState(initialTimer);
+    const [isTimerActive, setIsTimerActive] = useState(false);
+    const [gameIcons, setGameIcons] = useState(randomArray(15, 15));
+    const [showInbetveen, setShowInbetveen] = useState(true);
+    const [gameStarted, setGameStarted] = useState(false);
+    const [gameWon, setGameWon] = useState(false);
+    const [hasLost, setHasLost] = useState(false);
+    const [score, setScore] = useState(0);
+    const [coins, setCoins] = useState(0);
 
-    const startTimer = () => {
-        setIsActive(true);
+    const postGameData = () => {
+        // console.log("works");
+        router.post(route("score.add"), { level, score, gameWon });
+        router.post(route("coins.add"), { coins });
     };
 
-    const pauseTimer = () => {
-        console.log("timer paused");
-        setIsActive(false);
-    };
+    function startTimer() {
+        return setIsTimerActive(true);
+    }
+
+    const pauseTimer = () => setIsTimerActive(false);
 
     const resetTimer = () => {
-        setSeconds(timerStart);
-        setIsActive(false);
+        setTimeRemaining(initialTimer);
+        startTimer();
     };
 
-    const nextLevel = () => {
-        setLevel(level + 1);
-        setPopupSeen(false);
-        // setIsActive(true);
+    const advanceLevel = () => {
+        startTimer();
+        setShowInbetveen(false);
+        setLevel((prevLevel) => prevLevel + 1);
     };
+
+    const toggleGamePause = () => setIsGamePaused((prevState) => !prevState);
+
+    const resetGame = () => {
+        setLevel(0);
+        setIsGamePaused(false);
+        setHasLost(false);
+        setGameWon(false);
+        resetTimer();
+        setGameIcons(randomArray(15, 15));
+        setShowInbetveen(true);
+        setGameStarted(false);
+    };
+
+    useEffect(() => {
+        if (isGamePaused && !hasLost && level) {
+            pauseTimer();
+            // setIsPauseScreenHidden(false);
+        } else {
+            if (!level || showInbetveen) return;
+            startTimer();
+            // setTimeout(() => setIsPauseScreenHidden(true), 300);
+        }
+    }, [isGamePaused, hasLost, level]);
+
+    useEffect(() => {
+        const handleEscapeKey = (event) => {
+            if (event.key === "Escape") toggleGamePause();
+        };
+
+        window.addEventListener("keydown", handleEscapeKey);
+        return () => window.removeEventListener("keydown", handleEscapeKey);
+    }, []);
+
+    useEffect(() => {
+        if (hasLost) postGameData();
+    }, [hasLost]);
+
+    useEffect(() => {
+        if (gameWon) postGameData();
+    }, [gameWon]);
 
     useEffect(() => {
         let intervalId;
 
-        if (isActive && seconds > 0) {
-            console.log("timer worked");
+        // console.log(isTimerActive, timeRemaining);
+        if (isTimerActive && timeRemaining > 0) {
             intervalId = setInterval(() => {
-                setSeconds((prevSeconds) => prevSeconds - 1);
+                setTimeRemaining((prevTime) => prevTime - 1);
             }, 1000);
-        }
-        if (seconds === 0) {
-            setIsActive(false);
-            setLost(true);
-        }
-        if (!isActive) {
-            clearInterval(intervalId);
+        } else if (timeRemaining === 0) {
+            pauseTimer();
+            setHasLost(true);
+            // setTimeout(() => setIsLostScreenHidden(false), 300);
         }
 
         return () => clearInterval(intervalId);
-    }, [isActive, seconds]);
+    }, [isTimerActive, timeRemaining]);
 
     return (
-        <>
-            {level ? (
+        <Authenticated user={auth.user}>
+            <Head title="Memory Game" />
+            {/* <SecondaryButton onClick={postGameData}>Send data</SecondaryButton> */}
+            {gameStarted ? (
                 <>
-                    <h1>Level {level}</h1>
-                    <div>
-                        <Game
-                            currentLevel={level}
-                            onComplete={() => {
-                                // setPopupSeen(true);
-                                nextLevel();
-                            }}
-                            isLoss={lost}
-                            onMatch={() =>
-                                setSeconds((prevSeconds) => prevSeconds + 3)
-                            }
-                        />
+                    <div className="flex gap-4 justify-between w-[min(100%,_60rem)] mx-auto mt-6">
+                        <button onClick={toggleGamePause} className="rounded-[100%] hover:bg-primary p-2">
+                            <Pause size={24} />
+                        </button>
+                        <div>Level {level}</div>
+                        <div>Time left: {timeRemaining}</div>
+                        <div>Score: {score}</div>
                     </div>
-                    <div>Time left: {seconds}</div>
-                    {lost && <div>You lost :(</div>}
+                    <div>
+                        <PrimaryButton
+                            onClick={() =>
+                                setLevel((prevLevel) => prevLevel - 1)
+                            }
+                        >
+                            Last
+                        </PrimaryButton>
+                        <PrimaryButton onClick={advanceLevel}>
+                            Next
+                        </PrimaryButton>
+                    </div>
+                    <div className="p-8 bg-accent w-fit m-auto rounded-xl border-4 border-text">
+                        {showInbetveen && !gameWon ? (
+                            <GameInbetween
+                                isStart={level === 0}
+                                isPaused={isGamePaused}
+                                onComplete={advanceLevel}
+                            />
+                        ) : (
+                            <Game
+                                level={level}
+                                onComplete={() => {
+                                    pauseTimer();
+                                    setScore((prevScore) => prevScore + 50);
+                                    setCoins((prevCoins) => prevCoins + 100);
+                                    if (level === 20) {
+                                        setGameWon(true);
+                                        return;
+                                    }
+                                    setShowInbetveen(true);
+                                }}
+                                isLoss={hasLost}
+                                icons={gameIcons}
+                                onMatch={() => {
+                                    setTimeRemaining(
+                                        (prevTime) => prevTime + 5
+                                    );
+                                    setScore((prevScore) => prevScore + 10);
+                                }}
+                                onIncorrectMatch={() =>
+                                    setScore((prevScore) => prevScore - 5)
+                                }
+                            />
+                        )}
+                    </div>
                 </>
             ) : (
-                <>
-                    <h1>Welcome to the game</h1>
-                    <button
+                <div className="flex items-center justify-center h-full gap-10 flex-col">
+                    <div>
+                        <h1>Memory Game</h1>
+                        <p className="text-center">
+                            Match cards and get as far as you can!
+                        </p>
+                    </div>
+                    <PrimaryButton
+                        className={css.button}
                         onClick={() => {
-                            setLevel(1);
-                            // startTimer();
+                            setGameStarted(true);
                         }}
                     >
-                        Start game
-                    </button>
-                </>
+                        Play
+                    </PrimaryButton>
+                </div>
             )}
-
-            {/* {popuSeen && (
-                <button type="button" onClick={() => nextLevel()}>
-                    Next level
+            <Popup isSeen={hasLost} name="lost">
+                <h2>Game over :(</h2>
+                <Stats {...{ level, score, coins }} />
+                <button
+                    className={`${css.button} px-4 text-center`}
+                    onClick={resetGame}
+                >
+                    try again
                 </button>
-            )} */}
-        </>
+            </Popup>
+            <Popup isSeen={isGamePaused} name="pause">
+                <h2>Game paused</h2>
+                <PrimaryButton
+                    className={`${css.button} px-4 text-center`}
+                    onClick={toggleGamePause}
+                >
+                    return to game
+                </PrimaryButton>
+            </Popup>
+            <Popup isSeen={gameWon} name="win">
+                <h2>You won!</h2>
+                <Stats {...{ level, score, coins }} />
+                <div className="flex flex-wrap gap-2">
+                    <PrimaryButton
+                        className={`${css.button} px-4 text-center`}
+                        onClick={resetGame}
+                    >
+                        try again
+                    </PrimaryButton>
+                    <PrimaryButton
+                        className={`${css.button} px-4 text-center`}
+                    >
+                        <Link href="/stats">Stats</Link>
+                    </PrimaryButton>
+                </div>
+            </Popup>
+        </Authenticated>
     );
 };
 

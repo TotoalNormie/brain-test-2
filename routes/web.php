@@ -1,6 +1,11 @@
 <?php
 
+use App\Http\Controllers\CoinController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ScoreController;
+use App\Models\Leaderboard;
+use App\Models\Score;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -14,12 +19,16 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-Route::get('/game', function () {
+Route::get('/stats', function () {
+    return Inertia::render('Dashboard', [
+        'leaderboard' => Leaderboard::with('user')->orderBy('score', 'desc')->orderBy('level', 'desc')->get(),
+        'history' => Score::where('user_id', auth()->user()->id)->orderBy('updated_at', 'desc')->get(),
+    ]);
+})->middleware(['auth', 'verified'])->name('stats');
+Route::get('/play', function () {
     return Inertia::render('Game/Levels');
-})->name('game');
+})->middleware(['auth', 'verified'])->name('play');
+Route::get('/inventory', [InventoryController::class, 'view'])->middleware(['auth', 'verified'])->name('inventory');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -27,4 +36,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+Route::post('/score', [ScoreController::class, 'add'])->name('score.add');
+Route::post('coins/add', [CoinController::class, 'add'])->name('coins.add');
+Route::post('coins/subtract', [CoinController::class, 'subtract'])->name('coins.subtract');
+
+Route::post('/chest/buy', [InventoryController::class, 'buyChest'])->name('chest.buy');
+
+require __DIR__ . '/auth.php';

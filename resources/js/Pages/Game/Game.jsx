@@ -19,7 +19,7 @@ const shuffle = (array) => {
     return array;
 };
 
-const randomArray = (count, maxLength) => {
+export const randomArray = (count, maxLength) => {
     const array = [];
     while (array.length < count) {
         const randomNumber = Math.floor(Math.random() * maxLength) + 1;
@@ -30,16 +30,18 @@ const randomArray = (count, maxLength) => {
     return array;
 };
 
-const getIcons = (level) => {
-    const count = level === 1 ? 2 : 2 + Math.ceil(level / 2);
-    const numbers = randomArray(count, 10);
-    return numbers.map((number) => (
-        <img
-            className={css.cardImage}
-            key={number}
-            src={`./icons/programming/icon-${number}.png`}
-        />
-    ));
+const getIcons = (level, icons) => {
+    const baseCount = Math.ceil((level / 20) * 15);
+    const count = Math.max(baseCount, 2);
+    return icons
+        .slice(0, count)
+        .map((number) => (
+            <img
+                className={css.cardImage}
+                key={number}
+                src={`./icons/programming/icon-${number}.png`}
+            />
+        ));
 };
 const separateRows = (array) => {
     const columnCount =
@@ -66,16 +68,15 @@ const separateRows = (array) => {
     return rows;
 };
 
-const Game = ({ currentLevel, onComplete, onLoss, isLoss, onMatch }) => {
+const Game = ({ level, onComplete, isLoss, onMatch, onIncorrectMatch, icons }) => {
     const [flippedCards, setFlippedCards] = useState([]);
     const [matchedCards, setMatchedCards] = useState([]);
     const [gameBoard, setGameBoard] = useState([]);
     const [showAll, setShowAll] = useState(false);
-    const [level, setLevel] = useState(currentLevel);
     const [lost, setLost] = useState(false);
 
     const startGame = () => {
-        const gameIcons = getIcons(level);
+        const gameIcons = getIcons(level, icons);
         const cards = [];
 
         let i = 1;
@@ -92,43 +93,50 @@ const Game = ({ currentLevel, onComplete, onLoss, isLoss, onMatch }) => {
 
     useEffect(() => {
         setLost(isLoss);
-        if(isLoss) {
+        if (isLoss) {
             setFlippedCards([]);
             setMatchedCards([]);
         }
     }, [isLoss]);
 
     const quickShow = () => {
+        if (gameBoard.length === 0) return;
+        const timeout = 200;
+
         setTimeout(() => {
             setShowAll(true);
-        }, 200);
+        }, timeout);
         setTimeout(() => {
             setShowAll(false);
-            console.log(gameBoard, gameBoard.length);
-        }, 400 + 30 * (gameBoard.length > 0 ? gameBoard.length : 4));
+            // console.log(gameBoard, gameBoard.length);
+        }, Math.ceil(timeout * 2 + 120 * 1.15 ** gameBoard.length));
+
+        console.log(
+            "timeout: ",
+            Math.ceil(timeout * 2 + 120 * 1.15 ** gameBoard.length)
+        );
+        // console.log('timeout old: ', timeout * 2 + 100 * gameBoard.length);
     };
 
     useEffect(() => {
-        setLevel(currentLevel);
-        const timeout = currentLevel === 1 ? 0 : 400;
+        const timeout = 0;
         setTimeout(() => {
             startGame();
-            quickShow();
+            // quickShow();
         }, timeout);
 
         return () => {
             setMatchedCards([]);
         };
-    }, [currentLevel]);
+    }, [level]);
+
+    useEffect(quickShow, [gameBoard]);
 
     useEffect(() => {
-        // console.log(flippedCards);
-
         if (flippedCards.length >= 2) {
             const [id1, id2] = flippedCards;
             const card1 = gameBoard.filter((card) => card.id === id1).pop();
             const card2 = gameBoard.filter((card) => card.id === id2).pop();
-            // console.log("cards: ", card1, card2);
             if (card1?.icon === card2?.icon) {
                 setMatchedCards((prevMatchedCards) => [
                     ...prevMatchedCards,
@@ -139,39 +147,33 @@ const Game = ({ currentLevel, onComplete, onLoss, isLoss, onMatch }) => {
                 onMatch();
                 return;
             }
-            // console.log("should work");
+            onIncorrectMatch();
 
             setTimeout(() => {
-                // console.log("works");
                 setFlippedCards([]);
             }, 400);
         }
     }, [flippedCards]);
 
     useEffect(() => {
-        console.log("matchedCards: ", matchedCards, "game board", gameBoard);
         if (matchedCards.length === gameBoard.length && gameBoard.length > 0) {
             setTimeout(() => {
                 onComplete();
-            }, 1000);
+            }, 1200);
         }
     }, [matchedCards]);
 
     const flipCard = (id) => {
-        // console.log('works', flippedCards)
         if (lost) return;
         if (flippedCards.length >= 2) return;
-
-        // console.log(id, flippedCards, matchedCards, gameBoard)
-
         setFlippedCards((prevFlippedCards) => [...prevFlippedCards, id]);
     };
 
     const rows = separateRows(gameBoard);
-    // console.log(rows);
     if (!level) return "no level selected";
     return (
         <>
+            <button onClick={onComplete}>Complete</button>
             <div className={css.gameGrid}>
                 {rows?.map((row, i) => (
                     <div className={css.gameRow} key={i}>
@@ -184,6 +186,7 @@ const Game = ({ currentLevel, onComplete, onLoss, isLoss, onMatch }) => {
                                     flippedCards.includes(elem.id) || showAll
                                 }
                                 isMatched={matchedCards.includes(elem.id)}
+                                popout={matchedCards.length == gameBoard.length}
                             />
                         ))}
                     </div>
