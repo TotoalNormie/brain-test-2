@@ -85,6 +85,7 @@
     }
     to {
         opacity: 0;
+        display: none;
     }
 }
 
@@ -126,6 +127,12 @@
         rotate: calc(-1 * var(--rotation));
     }
     85% {
+        rotate: var(--rotation);
+    }
+    90% {
+        rotate: calc(-1 * var(--rotation));
+    }
+    95% {
         rotate: var(--rotation);
     }
 

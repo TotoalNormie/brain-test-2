@@ -3,7 +3,7 @@ import Game, { randomArray } from "./Game";
 import css from "./game.module.css";
 import GameInbetween from "./GameInbetween";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, usePage } from "@inertiajs/react";
 import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
 import { router } from "@inertiajs/react";
@@ -18,7 +18,7 @@ const Stats = ({ level, score, coins }) => (
     </div>
 );
 
-const Levels = ({ auth }) => {
+const Levels = ({ auth, cards, themes }) => {
     const initialTimer = 100;
     const [level, setLevel] = useState(0);
     const [isGamePaused, setIsGamePaused] = useState(false);
@@ -31,12 +31,15 @@ const Levels = ({ auth }) => {
     const [hasLost, setHasLost] = useState(false);
     const [score, setScore] = useState(0);
     const [coins, setCoins] = useState(0);
+    const { props } = usePage();
 
     const postGameData = () => {
         // console.log("works");
         router.post(route("score.add"), { level, score, gameWon });
         router.post(route("coins.add"), { coins });
     };
+
+    console.log(cards, themes, props);
 
     function startTimer() {
         return setIsTimerActive(true);
@@ -120,14 +123,17 @@ const Levels = ({ auth }) => {
             {gameStarted ? (
                 <>
                     <div className="flex gap-4 justify-between w-[min(100%,_60rem)] mx-auto mt-6">
-                        <button onClick={toggleGamePause} className="rounded-[100%] hover:bg-primary p-2">
+                        <button
+                            onClick={toggleGamePause}
+                            className="rounded-[100%] hover:bg-primary p-2"
+                        >
                             <Pause size={24} />
                         </button>
                         <div>Level {level}</div>
                         <div>Time left: {timeRemaining}</div>
                         <div>Score: {score}</div>
                     </div>
-                    <div>
+                    {/* <div>
                         <PrimaryButton
                             onClick={() =>
                                 setLevel((prevLevel) => prevLevel - 1)
@@ -138,8 +144,8 @@ const Levels = ({ auth }) => {
                         <PrimaryButton onClick={advanceLevel}>
                             Next
                         </PrimaryButton>
-                    </div>
-                    <div className="p-8 bg-accent w-fit m-auto rounded-xl border-4 border-text">
+                    </div> */}
+                    <div className="p-4 mt-12 bg-accent w-fit m-auto rounded-xl border-4 border-text">
                         {showInbetveen && !gameWon ? (
                             <GameInbetween
                                 isStart={level === 0}
@@ -177,7 +183,7 @@ const Levels = ({ auth }) => {
             ) : (
                 <div className="flex items-center justify-center h-full gap-10 flex-col">
                     <div>
-                        <h1>Memory Game</h1>
+                        <h1 className="text-6xl text-center">Memory Game</h1>
                         <p className="text-center">
                             Match cards and get as far as you can!
                         </p>
@@ -221,9 +227,7 @@ const Levels = ({ auth }) => {
                     >
                         try again
                     </PrimaryButton>
-                    <PrimaryButton
-                        className={`${css.button} px-4 text-center`}
-                    >
+                    <PrimaryButton className={`${css.button} px-4 text-center`}>
                         <Link href="/stats">Stats</Link>
                     </PrimaryButton>
                 </div>

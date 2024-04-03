@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export const Popup = ({ children, isSeen, name }) => {
+export const Popup = ({ children, isSeen, name, closeOnClick = false }) => {
     const [isScreenHidden, setIsScreenHidden] = useState(true);
 
     useEffect(() => {
@@ -18,8 +18,9 @@ export const Popup = ({ children, isSeen, name }) => {
                 isScreenHidden ? "hidden" : "block"
             } ${
                 isSeen ? "animate-appear" : "animate-disappear"
-            } z-10 bg-gray-800/80`}
+            } z-40 bg-zinc-800/80`}
         >
+            <div className="fixed inset-0" onClick={closeOnClick} />
             <div
                 className={`${
                     isSeen ? "animate-expand" : "animate-shrink"

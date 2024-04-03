@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import css from "./game.module.css";
 import Card from "./Card";
+import { getCards } from "@/selectCards";
 
 const shuffle = (array) => {
     let currentIndex = array.length,
@@ -39,15 +40,20 @@ const getIcons = (level, icons) => {
             <img
                 className={css.cardImage}
                 key={number}
-                src={`./icons/programming/icon-${number}.png`}
+                src={`./icons/${getCards()}/icon-${number}.png`}
             />
         ));
 };
 const separateRows = (array) => {
-    const columnCount =
-        array.length % 4 === 0 || array.length % 7 === 0
-            ? Math.ceil(Math.sqrt(array.length))
-            : Math.floor(Math.sqrt(array.length));
+    console.log("length", array.length);
+    let columnCount;
+    if (array.length == 28) {
+        columnCount = 5;
+    } else if (array.length % 4 === 0 || array.length % 7 === 0) {
+        columnCount = Math.ceil(Math.sqrt(array.length));
+    } else {
+        columnCount = Math.floor(Math.sqrt(array.length));
+    }
     const rows = [];
 
     for (let i = 0; i < array.length; i += columnCount) {
@@ -68,7 +74,14 @@ const separateRows = (array) => {
     return rows;
 };
 
-const Game = ({ level, onComplete, isLoss, onMatch, onIncorrectMatch, icons }) => {
+const Game = ({
+    level,
+    onComplete,
+    isLoss,
+    onMatch,
+    onIncorrectMatch,
+    icons,
+}) => {
     const [flippedCards, setFlippedCards] = useState([]);
     const [matchedCards, setMatchedCards] = useState([]);
     const [gameBoard, setGameBoard] = useState([]);
@@ -173,7 +186,7 @@ const Game = ({ level, onComplete, isLoss, onMatch, onIncorrectMatch, icons }) =
     if (!level) return "no level selected";
     return (
         <>
-            <button onClick={onComplete}>Complete</button>
+            {/* <button onClick={onComplete}>Complete</button> */}
             <div className={css.gameGrid}>
                 {rows?.map((row, i) => (
                     <div className={css.gameRow} key={i}>

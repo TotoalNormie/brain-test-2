@@ -23,8 +23,13 @@ class InventoryController extends Controller
     public function view()
     {
         return Inertia::render('Inventory/Index', [
-            'inventory' => Inventory::where('user_id', auth()->user()->id)->get(),
-            'chests' => $this->chests
+            'inventory' => Inventory::with('item')
+                ->where('user_id', auth()->user()->id)
+                ->get()
+                ->sortBy('item.name')
+                ->sortByDesc('item.price')
+                ->groupBy('item.type'),
+            'chests' => $this->chests,
         ]);
     }
 
@@ -43,19 +48,37 @@ class InventoryController extends Controller
             ->when($request->type == 'mixed', function ($query) {
                 $query->inRandomOrder();
             })
-            ->when(in_array($request->type, ['theme', 'card']), function ($query) use ($request) {
+            ->when(in_array($request->type, ['theme', 'cards']), function ($query) use ($request) {
                 $query->where('type', $request->type)->inRandomOrder();
             })
             ->first();
 
-        \Log::error(gettype($item));
-        \Log::error($item);
+        // \Log::error(gettype($item));
+        // \Log::error($item);
         Inventory::create([
             'user_id' => auth()->user()->id,
             'item_id' => $item['id'],
         ]);
 
+        return redirect()->back()->withErrors([
+            'item' => json_encode($item),
+        ]);
+    }
+    public function sellItem(Request $request)
+    {
+        $request->validate(['id' => 'integer|required']);
+        $item = Inventory::find($request->id);
+        if (!$item) {
+            return redirect()->back()->withErrors([
+                'sell' => "Item not found.",
+            ]);
+        }
+        auth()->user()->coins += $item->item->price;
 
-        return redirect()->route('inventory')->with("item", $item);
+        $item->delete();
+        return redirect()->back();
     }
 }
+
+
+

@@ -46,17 +46,66 @@
     --accent: #d25e70;
 }
 :root[data-theme="strawberry"] {
-    --text: #f3e2e4;
+    --text: #f8dde4;
     --background: #371418;
     --primary: #e9919b;
-    --secondary: #902632;
-    --accent: #d24f5f;
+    --secondary: #b91c2e;
+    --accent: #e47b87;
+}
+
+.strawberry-theme{
+    color: #f8dde4;
+    border: 4px solid #e47b87;
+    border-radius: .5em;
+    background-color:  #b91c2e;
+    padding: 1rem;
+}
+
+.default-theme{
+    color: #ffffff;
+    border: 4px solid #b0b0b0;
+    border-radius: .5em;
+    background-color:  #767676;
+    padding: 1rem;
+}
+
+.raspberry-theme{
+    color: #f2d8f4;
+    border: 4px solid #d25e70;
+    border-radius: .5em;
+    background-color:  #8c2736;
+    padding: 1rem;
+}
+
+.apple-theme{
+    color: #ddf5fe;
+    border: 4px solid #12b268;
+    border-radius: .5em;
+    background-color:  #1b7e46;
+    padding: 1rem;
+}
+
+.cyber-theme{
+    color: #ddf5fe;
+    border: 4px solid #a51fbd;
+    border-radius: .5em;
+    background-color:  #4a0596;
+    padding: 1rem;
+}
+
+.blueberry-theme{
+    color: #dee5ee;
+    border: 4px solid #89b2e9;
+    border-radius: .5em;
+    background-color:  #2c486e;
+    padding: 1rem;
 }
 
 :root {
     line-height: 1.5;
 
     color: var(--text);
+    background-color: var(--background);
 
     font-synthesis: style;
     text-rendering: optimizeLegibility;
@@ -70,6 +119,7 @@ body {
 
     background-color: var(--background);
     /* background-image: var(--background-image); */
+    font-size: clamp(16px, 1.5vw, 20px);
     background-position: center;
     background-size: cover;
     min-height: 100svh;

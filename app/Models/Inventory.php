@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Inventory extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'user_id',	
         'item_id',
     ];
 
-    use HasFactory;
+    public function item() {
+        return $this->belongsTo(Item::class);
+    }
 }

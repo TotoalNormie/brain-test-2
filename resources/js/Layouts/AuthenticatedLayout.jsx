@@ -5,6 +5,8 @@ import NavLink from "@/Components/NavLink";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import { Link } from "@inertiajs/react";
 import { PuzzlePiece } from "@phosphor-icons/react";
+import { removeCards } from "@/selectCards";
+import { removeTheme } from "@/selectTheme";
 
 export default function Authenticated({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
@@ -12,7 +14,7 @@ export default function Authenticated({ user, header, children }) {
 
     return (
         <div className="min-h-dvh bg-background grid grid-rows-[auto_auto_1fr]">
-            <nav className="bg-background border-b border-text">
+            <nav className="bg-background border-b border-text z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex">
@@ -91,6 +93,10 @@ export default function Authenticated({ user, header, children }) {
                                             href={route("logout")}
                                             method="post"
                                             as="button"
+                                            onClick={() => {
+                                                removeCards();
+                                                removeTheme();
+                                            }}
                                         >
                                             Log Out
                                         </Dropdown.Link>
@@ -100,6 +106,9 @@ export default function Authenticated({ user, header, children }) {
                         </div>
 
                         <div className="-me-2 flex items-center sm:hidden">
+                            <div className="p-2 bg-accent text-background rounded-md">
+                                {user.coins}c
+                            </div>
                             <button
                                 onClick={() =>
                                     setShowingNavigationDropdown(
@@ -169,7 +178,8 @@ export default function Authenticated({ user, header, children }) {
                             href={route("inventory")}
                             active={route().current("inventory")}
                         >
-                            <PuzzlePiece size={24} color="var(--text)" /> Inventory
+                            <PuzzlePiece size={24} color="var(--text)" />{" "}
+                            Inventory
                         </ResponsiveNavLink>
                     </div>
 
@@ -199,9 +209,9 @@ export default function Authenticated({ user, header, children }) {
                 </div>
             </nav>
 
-            <header className="bg-background shadow">
+            <header className="bg-background border-b border-text">
                 {header && (
-                    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-7xl text-accent mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {header}
                     </div>
                 )}
