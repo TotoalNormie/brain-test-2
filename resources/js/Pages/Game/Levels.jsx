@@ -133,7 +133,7 @@ const Levels = ({ auth, cards, themes }) => {
                         <div>Time left: {timeRemaining}</div>
                         <div>Score: {score}</div>
                     </div>
-                    {/* <div>
+                    <div>
                         <PrimaryButton
                             onClick={() =>
                                 setLevel((prevLevel) => prevLevel - 1)
@@ -144,7 +144,7 @@ const Levels = ({ auth, cards, themes }) => {
                         <PrimaryButton onClick={advanceLevel}>
                             Next
                         </PrimaryButton>
-                    </div> */}
+                    </div>
                     <div className="p-4 mt-12 bg-accent w-fit m-auto rounded-xl border-4 border-text">
                         {showInbetveen && !gameWon ? (
                             <GameInbetween
